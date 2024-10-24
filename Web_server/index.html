@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Arial", sans-serif;
+      color: #333;
+      background-image: url('./img/reti.jpg'); /* Aggiungi qui l'URL della tua immagine */
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .header {
+      background-color: rgba(129, 212, 250, 0.8); /* Blu chiaro con trasparenza */
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .pdf-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #4caf50; /* Colore del pulsante */
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .pdf-button:hover {
+      background-color: #45a049; /* Verde più scuro al passaggio del mouse */
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 20px;
+    }
+
+    .menu {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 10px;
+      flex: 1 1 25%; /* Occupa il 25% dello spazio */
+    }
+
+    .content {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 10px;
+      flex: 1 1 50%; /* Occupa il 50% dello spazio */
+    }
+
+    .qr-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .qr-code {
+      margin-right: 20px; /* Spazio tra il QR code e l'immagine */
+    }
+
+    .aside {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      margin: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      flex: 1 1 20%; /* Occupa il 20% dello spazio */
+    }
+
+    .footer {
+      background-color: rgba(129, 212, 250, 0.8); /* Blu chiaro con trasparenza */
+      color: #ffffff;
+      text-align: center;
+      padding: 15px;
+      position: relative;
+      margin-top: 20px;
+    }
+
+    .menu ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .menu li {
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #7ed321;
+      color: #ffffff;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .menu li:hover {
+      background-color: #5dbb2a;
+    }
+
+    .aside a {
+      color: #7ed321;
+      text-decoration: none;
+    }
+
+    .aside a:hover {
+      text-decoration: underline;
+    }
+
+    .image {
+      max-width: 150px; /* Dimensione massima per l'immagine */
+      height: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <h1>Monitoraggio CPU e Temperature</h1>
+    <button class="pdf-button" onclick="downloadPDF()">Scarica PDF</button>
+  </header>
+
+  <div class="container">
+    <div class="menu">
+      <h2>Menu</h2>
+      <ul>
+        <li><a href="http://localhost:8010/documenti/manuale.pdf" style="color: white;">Manuale</a></li>
+        <li><a href="http://localhost:8010/cgi-bin/temp.py" style="color: white;">Grafico Temperature</a></li>
+        <li><a href="http://localhost:8010/cgi-bin/Tempe.py" style="color: white;">Dati Temperatura Umidità</a></li>
+        <li><a href="http://localhost:8010/cgi-bin/CPU.py" style="color: white;">Temperatura CPU</a></li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <h2>Temperature</h2>
+      <p>Monitoraggio in tempo reale delle temperature.</p>
+      <div class="qr-container">
+        <canvas id="qr-code" class="qr-code" style="margin-top: 20px;"></canvas>
+        <img src="./img/reti.jpg" alt="Descrizione immagine" class="image" /> <!-- Sostituisci con l'URL dell'immagine -->
+      </div>
+    </div>
+
+    <div class="aside">
+      <h3>Link Utili</h3>
+      <p><a href='https://www.picolab.eu/' target="_blank">Sito Picolab</a></p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p><marquee>Benvenuto nel monitoraggio delle temperature!</marquee></p>
+  </footer>
+
+  <script>
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+
+      // Crea un nuovo PDF
+      const doc = new jsPDF();
+
+      // Aggiungi il testo descrittivo
+      doc.setFontSize(12);
+      doc.text("Questo software permette il monitoraggio in tempo reale delle temperature della CPU e di altri componenti.", 10, 10);
+      doc.text("Utilizza grafici per visualizzare i dati e report per l'analisi.", 10, 20);
+      doc.text("Link utili:", 10, 30);
+      
+      // Aggiungi i link del menu
+      const links = [
+        "1. Manuale: http://localhost:8010/documenti/manuale.pdf",
+        "2. Grafico Temperature: http://localhost:8010/cgi-bin/temp.py",
+        "3. Dati Temperatura Umidità: http://localhost:8010/cgi-bin/Tempe.py",
+        "4. Temperatura CPU: http://localhost:8010/cgi-bin/CPU.py"
+      ];
+
+      links.forEach((link, index) => {
+        doc.text(link, 10, 40 + (index * 10));
+      });
+
+      // Aggiungi una nuova pagina per il QR code
+      doc.addPage();
+      doc.text("Codice QR per il grafico delle temperature:", 10, 10);
+      
+      // Utilizza html2canvas per catturare il codice QR
+      const canvas = await html2canvas(document.getElementById('qr-code'));
+      const imgData = canvas.toDataURL('image/png');
+
+      // Aggiungi il codice QR alla pagina PDF
+      const imgWidth = 80; // Imposta una larghezza per il QR code
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      doc.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
+      doc.save('pagina_intera.pdf');
+    }
+
+    function generateQRCode() {
+      const qr = new QRious({
+        element: document.getElementById('qr-code'),
+        value: 'http://localhost:8010/cgi-bin/temp.py', 
+        size: 150
+      });
+    }
+
+    window.onload = generateQRCode;
+  </script>
+</body>
+</html>
